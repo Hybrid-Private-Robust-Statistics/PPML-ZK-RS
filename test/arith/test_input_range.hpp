@@ -32,14 +32,17 @@ vector<data_entry> create_random_dataset(vector<uint64_t> &precomputed_dataset, 
 }
 
 
-void test_input_range( uint64_t B_low, uint64_t B_high, long long num_records, int party, int parties) {
+double test_input_range(BoolIO<NetIO> **ios, int party, uint64_t B_low, uint64_t B_high, long long num_records, int parties) {
+    double tt;
+    
+    setup_zk_arith<BoolIO<NetIO>>(ios, threads, party);
+    setup_zk_bool<BoolIO<NetIO>>(ios, threads, party);
     vector<IntFp> zk_zero_checking;
 	vector<uint64_t> precomputed_dataset;
 	vector<IntFp> zk_precomputed_dataset;
     auto dataset = create_random_dataset(precomputed_dataset, zk_precomputed_dataset, num_records);
-
 	if(party == ALICE) {
-		cout << "num of entries: " << dataset.size() << endl;
+		//cout << "num of entries: " << dataset.size() << endl;
 		//cout << "after loading the dataset, used OT triples = " << ZKFpExec::zk_exec->print_total_triple() << endl;
 	}
     auto total_time_start = clock_start();
@@ -67,8 +70,10 @@ void test_input_range( uint64_t B_low, uint64_t B_high, long long num_records, i
         // First, compute how many bits are needed.
         // And then add it to ZK_bits
 
-        bool* bits = new bool[needed_bits_range_check * 2];
-
+        //bool* bits = new bool[needed_bits_range_check * 2];
+        //IntFp* zk_bits = new IntFp[needed_bits_range_check * 2];
+        std::vector<bool> bits(needed_bits_range_check * 2);
+        std::vector<IntFp> zk_bits(needed_bits_range_check * 2);
         uint64_t delta_low = dataset[i].inp - B_low;
         uint64_t delta_high = B_high - dataset[i].inp;
 
@@ -80,16 +85,15 @@ void test_input_range( uint64_t B_low, uint64_t B_high, long long num_records, i
             delta_high >>= 1;
         }
 
-        IntFp* zk_bits = new IntFp[needed_bits_range_check * 2];
-        for (int i = 0; i < needed_bits_range_check * 2; i++) {
-            zk_bits[i] = IntFp(bits[i], ALICE);
+        
+        for (int j = 0; j < needed_bits_range_check * 2; j++) {
+            zk_bits[j] = IntFp(bits[j], ALICE);
         }
 
-        for (int i = 0; i < needed_bits_range_check * 2; i++) {
+        for (int j = 0; j < needed_bits_range_check * 2; j++) {
             IntFp tmp;
-            tmp = zk_bits[i] * zk_bits[i];
-            tmp = tmp + zk_bits[i].negate();
-
+            tmp = zk_bits[j] * zk_bits[j];
+            tmp = tmp + zk_bits[j].negate();
             zk_zero_checking.emplace_back(tmp);
         }
 
@@ -104,14 +108,18 @@ void test_input_range( uint64_t B_low, uint64_t B_high, long long num_records, i
         zk_zero_checking.emplace_back(tmp0);
         zk_zero_checking.emplace_back(tmp1);
 
-        delete[] bits;
-        delete[] zk_bits;
+        //delete[] bits;
+        //delete[] zk_bits;
     }
     batch_reveal_check_zero(zk_zero_checking.data(), zk_zero_checking.size());
-    auto total_time = time_from(total_time_start);
-	cout << "prove [" << num_records << "]  range checks" << endl;
-    cout << "time use for "<< parties << " parties:" << (total_time* parties*(parties-1)) /  CLOCKS_PER_SEC << " sec" << endl;
+    double total_time = time_from(total_time_start);
 
+    finalize_zk_arith<BoolIO<NetIO>>();
+    finalize_zk_bool<BoolIO<NetIO>>();
+	//cout << "prove [" << num_records << "]  range checks" << endl;
+    //cout << "time use for "<< parties << " parties:" << (total_time* parties*(parties-1)) /  CLOCKS_PER_SEC << " sec" << endl;
+    tt = (total_time /  CLOCKS_PER_SEC) ;
+    return tt;
 }
 
 #endif //EMP_ZK_INPUT_RANGE_CHECK_H

@@ -12,7 +12,7 @@ int port, party, parties;
 long long repeat, sz;
 long long n, d;
 long long test_n;
-const int threads = 8;
+const int threads = 48;
 
 void test_inner_product(BoolIO<NetIO> *ios[threads], int party) {
   srand(time(NULL));

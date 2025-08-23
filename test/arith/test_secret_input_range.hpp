@@ -39,9 +39,10 @@ vector<data_entry> create_random_dataset(vector<int64_t> &precomputed_dataset, v
 }
 
 
-void test_secret_input_range(int64_t B_low, int64_t B_high, long long num_records, int party, int parties) {
+double test_secret_input_range(BoolIO<NetIO> **ios, int party, uint64_t B_low, uint64_t B_high, long long num_records, int parties) {
     int64_t l = num_records / 2;
-	IntFp zk_l = IntFp(l, ALICE);
+	setup_zk_arith<BoolIO<NetIO>>(ios, threads, party);
+    IntFp zk_l = IntFp(l, ALICE);
 	zk_l = zk_l.negate();
     vector<IntFp> zk_zero_checking;
 	vector<uint64_t> precomputed_dataset;
@@ -130,13 +131,14 @@ void test_secret_input_range(int64_t B_low, int64_t B_high, long long num_record
         delete[] bits;
         delete[] zk_bits;
     }
-    
     batch_reveal_check_zero(zk_zero_checking.data(), zk_zero_checking.size());
+    finalize_zk_arith<BoolIO<NetIO>>();
     auto total_time = time_from(total_time_start);
-    cout << "prove [" << num_records << "] secret range checks" << endl;
-    cout << "time use for "<< parties << " parties:" << (total_time* parties*(parties-1)) /  CLOCKS_PER_SEC << " sec" << endl;
-
-    
+    //cout << "prove [" << num_records << "] secret range checks" << endl;
+    //cout << "time use for "<< parties << " parties:" << (total_time* parties*(parties-1)) /  CLOCKS_PER_SEC << " sec" << endl;
+    double tt = total_time /  CLOCKS_PER_SEC;
+    return (tt/  CLOCKS_PER_SEC) ;
 }
+    
 
 #endif //EMP_ZK_RANGE_CHECK_H

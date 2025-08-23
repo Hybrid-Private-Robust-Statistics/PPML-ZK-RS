@@ -23,7 +23,7 @@ vector<data_entry> create_random_dataset(vector<uint64_t> &precomputed_dataset, 
 	vector<data_entry> dataset;
 	for(int i = 0; i < num_records; i++) {
 		data_entry new_entry;
-		new_entry.inp = 99999999; // since 1 is always in the range, we use 1 in the benchmark
+		new_entry.inp = 1; // since 1 is always in the range, we use 1 in the benchmark
 		new_entry.zk_inp = IntFp(new_entry.inp, ALICE);
 
 		precomputed_dataset.push_back(new_entry.inp);
@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
 	}
 
 	for(int i = 0; i < dataset.size(); i++) {
-		range_check(dataset[i].inp, dataset[i].zk_inp, 99998474, range_len, zk_zero_checking);
+		range_check(dataset[i].inp, dataset[i].zk_inp, 0, range_len, zk_zero_checking);
 	}
 
 	//if(party == ALICE) {

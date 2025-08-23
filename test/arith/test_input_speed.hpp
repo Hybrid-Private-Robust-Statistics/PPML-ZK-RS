@@ -4,33 +4,36 @@
 #include "emp-tool/emp-tool.h"
 #include <emp-zk/emp-zk.h>
 #include <iostream>
+#include "utils.hpp"
+
 using namespace emp;
 using namespace std;
 
 
-const long long CHUNK_SIZE = 1000000000; // Process in chunks of 1B elements
+const long long CHUNK_SIZE = 1000000; // Process in chunks of 1B elements
 
-void test_input_speed(BoolIO<NetIO> **ios, int party, long long input_sz) {
+double test_input_speed(BoolIO<NetIO> **ios, int party, long long input_sz) {
     long long total_sz = input_sz;  // Convert log size to actual size
-    std::cout << "Total input size: " << total_sz << std::endl;
+    //std::cout << "Total input size: " << total_sz << std::endl;
 
-    srand(time(NULL));
+    //srand(time(NULL));
 
     uint64_t *a = new uint64_t[CHUNK_SIZE];  // Allocate buffer for a chunk
     IntFp *x = new IntFp[CHUNK_SIZE];
 
-    //setup_zk_arith<BoolIO<NetIO>>(ios, threads, party);
+    setup_zk_arith<BoolIO<NetIO>>(ios, threads, party);
 
     long long processed = 0;
     double total_time = 0.0;
 
     /* Chunked batch input */
     while (processed < total_sz) {
+        //cout << "hi" << endl;
         long long chunk_size = min((long long)CHUNK_SIZE, total_sz - processed); // Fix applied
 
         // Generate random input for the current chunk
         for (long long i = 0; i < chunk_size; ++i)
-            a[i] = rand() % PR;
+            a[i] = 1;
 
         auto start = clock_start();
         batch_feed(x, a, chunk_size);
@@ -40,13 +43,13 @@ void test_input_speed(BoolIO<NetIO> **ios, int party, long long input_sz) {
         processed += chunk_size;
     }
 
-    std::cout << "Chunked batch input average time: " 
-              << (total_time / 1000 ) << " ms " << std::endl;
+    //std::cout << "Chunked batch input average time: " << (total_time / 1000 ) << " ms " << std::endl;
 
-    //finalize_zk_arith<BoolIO<NetIO>>();
+    finalize_zk_arith<BoolIO<NetIO>>();
 
     delete[] a;
     delete[] x;
+    return (total_time /  CLOCKS_PER_SEC) ;
 }
 
 #endif // TEST_INPUT_SPEED_H

@@ -1,12 +1,18 @@
-#ifndef EMP_ZK_RANGE_CHECK_H
-#define EMP_ZK_RANGE_CHECK_H
+#ifndef EMP_ZK_RANGE_CHECK_SUM_H
+#define EMP_ZK_RANGE_CHECK_SUM_H
 
 #include "emp-tool/emp-tool.h"
 #include <emp-zk/emp-zk.h>
 #include <iostream>
 #include "utils.hpp"
+#include "test_input_range.hpp"
+#include "random_linear_combination.hpp"
+
 using namespace emp;
 using namespace std;
+
+
+
 
 void secret_range_check(int64_t inp, IntFp zk_inp, int64_t B_low, int64_t B_high, vector<IntFp> &zk_zero_checking, IntFp &zk_l) {
     //assert(inp >= B_low);
@@ -92,4 +98,57 @@ void secret_range_check(int64_t inp, IntFp zk_inp, int64_t B_low, int64_t B_high
     delete[] zk_bits;
 }
 
-#endif //EMP_ZK_RANGE_CHECK_H
+
+double test_secret_sum_range_check(BoolIO<NetIO> **ios, int party, uint64_t B_low, uint64_t B_high, long long num_records, int parties) {
+
+    setup_zk_bool<BoolIO<NetIO>>(ios, threads, party);
+	setup_zk_arith<BoolIO<NetIO>>(ios, threads, party);
+
+	vector<IntFp> zk_zero_checking;
+	vector<int64_t> precomputed_dataset;
+	vector<IntFp> zk_precomputed_dataset;
+
+	/************************************************************************************/
+
+	//if(party == ALICE) {
+	//	cout << "start to create fake data and input them, used OT triples = " << ZKFpExec::zk_exec->print_total_triple() << endl;
+	//}
+
+	auto dataset = create_random_dataset(precomputed_dataset, zk_precomputed_dataset, num_records);
+	
+	int64_t l = num_records / 2;
+	IntFp zk_l = IntFp(l, ALICE);
+	zk_l = zk_l.negate();
+    auto total_time_start = clock_start();
+	for(int i = 0; i < dataset.size(); i++) {
+		secret_range_check(dataset[i].inp, dataset[i].zk_inp, B_low, B_high, zk_zero_checking, zk_l);
+	}
+	zk_zero_checking.emplace_back(zk_l);
+	//if(party == ALICE) {
+		//cout << "after all the range checks, used OT triples = " << ZKFpExec::zk_exec->print_total_triple() << endl;
+	//}
+
+	// compute the random linear combination
+	// temporarily, we set the challenges to be 7 and 8
+
+	int64_t randlc_res_1;
+	IntFp zk_randlc_res_1 = IntFp(0, PUBLIC);
+
+	int64_t randlc_res_2;
+	IntFp zk_randlc_res_2 = IntFp(0, PUBLIC);
+
+
+	random_linear_combination_signed(precomputed_dataset, zk_precomputed_dataset, 7, randlc_res_1, zk_randlc_res_1);
+	random_linear_combination_signed(precomputed_dataset, zk_precomputed_dataset, 8, randlc_res_2, zk_randlc_res_2);
+
+	batch_reveal_check_zero(zk_zero_checking.data(), zk_zero_checking.size());
+    finalize_zk_bool<BoolIO<NetIO>>();
+	finalize_zk_arith<BoolIO<NetIO>>();
+    auto total_time = time_from(total_time_start);
+    //cout << "prove [" << num_records << "] secret range checks" << endl;
+    //cout << "time use for "<< parties << " parties:" << (total_time* parties*(parties-1)) /  CLOCKS_PER_SEC << " sec" << endl;
+    double tt = total_time /  CLOCKS_PER_SEC;
+    return (tt/  CLOCKS_PER_SEC) ;
+	
+}
+#endif //EMP_ZK_RANGE_CHECK_SUM_H
