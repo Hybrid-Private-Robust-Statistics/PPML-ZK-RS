@@ -1,3 +1,5 @@
+// party0 in AWS must be party 1 in execution!!
+
 #include "emp-tool/emp-tool.h"
 #include <emp-zk/emp-zk.h>
 #include <iostream>
@@ -36,7 +38,7 @@ double initial_input_commitment(BoolIO<NetIO> *ios[threads], int party, long lon
     tt5 = test_input_range(ios, party, b_low, b_high, repeat, m);
     
     // Total time for pairwise proofs between parties
-    tt = m*(m-1)*(tt1 + tt2 + tt3 + tt4 + tt5);
+    tt = (m-1)*(tt1 + tt2 + tt3 + tt4 + tt5);
     return tt;
 }
 
@@ -77,7 +79,7 @@ double model_input_update(BoolIO<NetIO> *ios[threads], int party, long long n, l
     
     tt9 = test_input_range(ios, party, b_low, b_high, d*d, m);
     // Total time for pairwise proofs between parties
-    tt = m*(m-1)*(tt1 + tt2 + tt3 + tt4 + tt5 + tt6 + tt7 + tt8 + tt9);
+    tt = (m-1)*(tt1 + tt2 + tt3 + tt4 + tt5 + tt6 + tt7 + tt8 + tt9);
     return tt;
 }
 
