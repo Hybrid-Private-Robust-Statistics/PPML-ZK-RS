@@ -89,7 +89,7 @@ double participation_set_update(BoolIO<NetIO> *ios[threads], int party, long lon
     tt1 = test_secret_input_range(ios, party, b_low, b_high, n, m);
     tt2 = test_input_speed(ios, party, n);
     tt3 = test_secret_sum_range_check(ios, party, b_low, b_high, n, m);
-    tt = m*(m-1)*(tt1 + 2*tt2 + 2*tt3 );
+    tt = (m-1)*(tt1 + 2*tt2 + 2*tt3 );
     return tt;
 }
 
