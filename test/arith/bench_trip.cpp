@@ -46,9 +46,9 @@ double model_input_update(BoolIO<NetIO> *ios[threads], int party, long long n, l
     double tt, tt1, tt2, tt3, tt4, tt5, tt6, tt7, tt8, tt9;
     long long input_size, input_sizeX, input_sizey, repeat, len;
     
-    // Case 1: matrix = d *  n , n dots
+    // Case 1: matrix = d *  n , 1 dots
     repeat = n*d;
-    len  = n;
+    len  = 1;
     input_size = repeat * len * 2;
     tt1 = test_inner_product(ios, party, repeat, len);
     tt2 = test_input_speed(ios, party, input_size);
