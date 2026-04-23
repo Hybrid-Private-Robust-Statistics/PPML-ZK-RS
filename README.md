@@ -1,14 +1,6 @@
-# EMP-zk  
-![arm](https://github.com/emp-toolkit/emp-zk/workflows/arm/badge.svg)
-![x86](https://github.com/emp-toolkit/emp-zk/workflows/x86/badge.svg)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/emp-toolkit/emp-zk.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/emp-toolkit/emp-zk/alerts/)
-[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/emp-toolkit/emp-zk.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/emp-toolkit/emp-zk/context:cpp)
+## Use of EMP-ZK in our protocol
+Our zero-knowledge (ZK) proofs are based on an sVOLE protocol \cite{yang_quicksilver_2021} implemented in the EMP-TOOL library \cite{emp-toolkit}. EMP-ZK also follows the offline-online paradigm.  We implement and measure the overhead introduced by multiplication proofs (to verify the parties'  inputs), range proofs (for verifying the input range, the correct computation of the matrix inversion using fixed-point arithmetic, the $q$-th quantile iterative computation, and the participation set), and the generation of privately authenticated values. %
 
-<img src="https://raw.githubusercontent.com/emp-toolkit/emp-readme/master/art/logo-full.jpg" width=300px/>
-
-Protocols
-=====
-The code in this repo implements a fast, scalable, communication-efficient zero-knowledge proof protocol for Boolean/arithmetic circuits and polynomials. The protocols are described in [Wolverine](https://eprint.iacr.org/2020/925), [Quicksilver](https://eprint.iacr.org/2021/076) and [Mystique](https://eprint.iacr.org/2021/730).
 
 Installation
 =====
